@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>DompetMahasiswa - Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -18,17 +17,12 @@
             padding-bottom: env(safe-area-inset-bottom);
             -webkit-tap-highlight-color: transparent;
         }
+        /* Kontras kartu lebih tegas agar tidak nyaru dengan background */
         .neu-card {
             background: linear-gradient(145deg, #ffffff, #eef3f9);
             box-shadow: 10px 10px 22px rgba(163, 177, 198, 0.55), -10px -10px 22px rgba(255, 255, 255, 0.9);
             border-radius: 26px;
             border: 1.5px solid rgba(255, 255, 255, 0.95);
-        }
-        .neu-hero-blue {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            box-shadow: 10px 12px 24px rgba(37, 99, 235, 0.35), -6px -6px 16px rgba(255, 255, 255, 0.7);
-            border-radius: 26px;
-            border: 1px solid rgba(255, 255, 255, 0.25);
         }
         .neu-inset {
             background: #E4ECF5;
@@ -36,29 +30,37 @@
             border-radius: 18px;
             border: 1px solid rgba(255, 255, 255, 0.5);
         }
-        .neu-pill-btn {
+        .neu-icon-btn {
             background: linear-gradient(145deg, #ffffff, #e6edf5);
-            box-shadow: 5px 5px 12px rgba(163, 177, 198, 0.5), -5px -5px 12px rgba(255, 255, 255, 0.95);
-            border-radius: 16px;
+            box-shadow: 6px 6px 14px rgba(163, 177, 198, 0.5), -6px -6px 14px rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
             border: 1px solid rgba(255, 255, 255, 0.9);
             transition: all 0.2s ease;
         }
-        .neu-pill-btn:active { transform: scale(0.97); }
+        .neu-icon-btn:hover, .neu-icon-btn.active {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: #ffffff;
+            box-shadow: 6px 6px 16px rgba(37, 99, 235, 0.35), -4px -4px 10px #ffffff;
+        }
+        .neu-icon-btn.active-red {
+            background: linear-gradient(135deg, #f43f5e, #e11d48);
+            color: #ffffff;
+            box-shadow: 6px 6px 16px rgba(244, 63, 94, 0.35), -4px -4px 10px #ffffff;
+        }
         .neu-btn-blue {
             background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.55);
             border-radius: 9999px;
-            transition: all 0.15s ease;
+            transition: transform 0.15s ease;
         }
-        .neu-btn-blue:hover { transform: translateY(-1px); }
-        .neu-btn-blue:active { transform: scale(0.98); }
+        .neu-btn-blue:hover { transform: translateY(-2px); }
         .neu-line-input {
             background: transparent;
             border: none;
             border-bottom: 1.5px solid #cbd5e1;
             border-radius: 0;
             padding: 11px 4px;
-            font-size: 16px;
+            font-size: 16px; /* Mencegah auto-zoom di iPhone Safari */
             transition: border-color 0.2s;
         }
         @media (min-width: 640px) {
@@ -67,39 +69,53 @@
         .neu-line-input:focus { outline: none; border-bottom-color: #2563eb; }
     </style>
 </head>
-<body class="min-h-screen py-5 sm:py-8 px-4 sm:px-6 lg:px-8">
+<body class="min-h-screen py-6 sm:py-8 px-4 sm:px-6 lg:px-8">
 
     @php
         $usagePercent = $totalIncome > 0 ? min(round(($totalExpense / $totalIncome) * 100), 100) : 0;
     @endphp
 
-    <div class="max-w-6xl mx-auto space-y-6 sm:space-y-7">
+    <div class="max-w-6xl mx-auto space-y-6 sm:space-y-8">
         
-        <!-- 1. HEADER -->
-        <header class="flex items-center justify-between gap-3">
-            <div>
-                <h1 class="text-xl sm:text-2xl font-extrabold text-slate-800 tracking-tight">
-                    Dompet<span class="text-blue-600">Mahasiswa</span>
-                </h1>
-                <p class="text-xs text-slate-500 mt-0.5">Halo, <span class="font-semibold text-slate-700">{{ Auth::user()->username }}</span></p>
+        <!-- HEADER: Tata Letak Asli + Lega di HP (Grid 3 Kolom di Mobile, Flex di Desktop) -->
+        <header class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5">
+            <div class="w-full lg:w-auto flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-extrabold text-slate-800 tracking-tight">Dompet<span class="text-blue-600">Mahasiswa</span></h1>
+                    <p class="text-xs text-slate-500 mt-0.5">Halo, <span class="font-semibold text-slate-700">{{ Auth::user()->username }}</span></p>
+                </div>
             </div>
 
-            <div class="flex items-center gap-2.5 sm:gap-3">
-                <button type="button" onclick="openPdfModal()" class="neu-pill-btn h-11 px-3.5 sm:px-4 flex items-center gap-2 text-xs font-semibold text-blue-600 hover:bg-blue-50">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                    <span>Rekap PDF</span>
-                </button>
-
-                <a href="{{ route('profile') }}" class="neu-pill-btn h-11 px-3.5 sm:px-4 flex items-center gap-2 text-xs font-semibold text-slate-700 hover:text-blue-600" title="Profile">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                    <span class="hidden sm:inline">Profile</span>
+            <!-- Baris Tombol Ikonik: Di HP jadi 2 baris (3 kolom x 2) biar tidak mepet -->
+            <div class="grid grid-cols-3 sm:flex items-center gap-3.5 sm:gap-3 w-full lg:w-auto">
+                <a href="{{ route('transactions.index') }}#riwayatTransaksi" class="neu-icon-btn h-16 sm:w-16 sm:h-16 flex flex-col items-center justify-center text-xs font-semibold {{ !request('type') ? 'active' : 'text-slate-600' }}">
+                    <svg class="w-4 h-4 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                    Semua
+                </a>
+                <a href="{{ route('transactions.index', ['type' => 'income']) }}#riwayatTransaksi" class="neu-icon-btn h-16 sm:w-16 sm:h-16 flex flex-col items-center justify-center text-xs font-semibold {{ request('type') == 'income' ? 'active' : 'text-slate-600' }}">
+                    <svg class="w-4 h-4 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Masuk
+                </a>
+                <a href="{{ route('transactions.index', ['type' => 'expense']) }}#riwayatTransaksi" class="neu-icon-btn h-16 sm:w-16 sm:h-16 flex flex-col items-center justify-center text-xs font-semibold {{ request('type') == 'expense' ? 'active-red' : 'text-slate-600' }}">
+                    <svg class="w-4 h-4 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+                    Keluar
                 </a>
 
-                <form action="{{ route('logout') }}" method="POST">
+                <button type="button" onclick="openPdfModal()" class="neu-icon-btn h-16 sm:w-16 sm:h-16 flex flex-col items-center justify-center text-xs font-semibold text-blue-600">
+                    <svg class="w-4 h-4 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    PDF
+                </button>
+
+                <a href="{{ route('profile') }}" class="neu-icon-btn h-16 sm:w-16 sm:h-16 flex flex-col items-center justify-center text-xs font-semibold text-slate-600">
+                    <svg class="w-4 h-4 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    Profile
+                </a>
+
+                <form action="{{ route('logout') }}" method="POST" class="w-full sm:w-auto">
                     @csrf
-                    <button type="submit" class="neu-pill-btn h-11 px-3.5 sm:px-4 flex items-center gap-2 text-xs font-semibold text-rose-500 hover:text-rose-600" title="Logout">
-                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                        <span class="hidden sm:inline">Logout</span>
+                    <button type="submit" class="neu-icon-btn w-full h-16 sm:w-16 sm:h-16 flex flex-col items-center justify-center text-xs font-semibold text-rose-500 hover:!bg-rose-500 hover:!text-white">
+                        <svg class="w-4 h-4 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                        Logout
                     </button>
                 </form>
             </div>
@@ -107,14 +123,14 @@
 
         <!-- Notifikasi -->
         @if(session('success'))
-            <div class="neu-card px-5 py-3.5 text-xs sm:text-sm font-semibold text-blue-700 flex items-center justify-between">
+            <div class="neu-card px-5 py-4 text-xs sm:text-sm font-semibold text-blue-700 flex items-center justify-between">
                 <span>{{ session('success') }}</span>
                 <span class="w-2.5 h-2.5 rounded-full bg-blue-600 shrink-0"></span>
             </div>
         @endif
 
         @if($errors->any())
-            <div class="neu-card px-5 py-3.5 text-xs text-rose-600">
+            <div class="neu-card px-5 py-4 text-xs text-rose-600">
                 <ul class="list-disc list-inside">
                     @foreach($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -123,84 +139,25 @@
             </div>
         @endif
 
-        <!-- 2. HERO RINGKASAN KEUANGAN -->
-        <section class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
-            <!-- Kartu 1: Sisa Saldo -->
-            <div class="neu-hero-blue p-6 text-white flex flex-col justify-between">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-blue-100">Sisa Saldo</span>
-                    <span class="text-[11px] bg-white/20 px-2.5 py-0.5 rounded-full font-medium">
-                        {{ 100 - $usagePercent }}% Tersisa
-                    </span>
-                </div>
-                <div class="my-3">
-                    <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight break-words">
-                        Rp {{ number_format($balance, 0, ',', '.') }}
-                    </h2>
-                </div>
-                <div>
-                    <div class="flex justify-between text-[11px] text-blue-100 mb-1.5">
-                        <span>Rasio Pemakaian</span>
-                        <span class="font-bold text-white">{{ $usagePercent }}%</span>
-                    </div>
-                    <div class="w-full h-2 bg-blue-950/35 rounded-full overflow-hidden">
-                        <div class="h-full bg-white rounded-full transition-all duration-500" style="width: {{ $usagePercent }}%"></div>
-                    </div>
-                </div>
-            </div>
+        <!-- GRID UTAMA ASLI (4 Kolom Kiri Form, 8 Kolom Kanan Statistik & Riwayat) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
 
-            <!-- Kartu 2: Total Pemasukan -->
-            <div class="neu-card p-6 flex flex-col justify-between">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Pemasukan</span>
-                    <button type="button" onclick="quickSelectType('income')" title="Catat Pemasukan" class="w-9 h-9 rounded-xl bg-blue-100 hover:bg-blue-600 text-blue-600 hover:text-white flex items-center justify-center font-bold text-base transition cursor-pointer shadow-sm">
-                        +
-                    </button>
-                </div>
-                <div class="mt-4">
-                    <p class="text-2xl font-extrabold text-blue-600 break-words">
-                        Rp {{ number_format($totalIncome, 0, ',', '.') }}
-                    </p>
-                    <p class="text-[11px] text-slate-400 mt-1">Klik + untuk catat pemasukan</p>
-                </div>
-            </div>
+            <!-- KOLOM KIRI (4 Kolom): Form Catat Transaksi -->
+            <div class="lg:col-span-4 neu-card p-6 sm:p-8">
+                <h2 class="text-lg sm:text-xl font-bold text-slate-800 mb-5">Catat Transaksi</h2>
 
-            <!-- Kartu 3: Total Pengeluaran -->
-            <div class="neu-card p-6 flex flex-col justify-between">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Pengeluaran</span>
-                    <button type="button" onclick="quickSelectType('expense')" title="Catat Pengeluaran" class="w-9 h-9 rounded-xl bg-rose-100 hover:bg-rose-500 text-rose-500 hover:text-white flex items-center justify-center font-bold text-base transition cursor-pointer shadow-sm">
-                        -
-                    </button>
-                </div>
-                <div class="mt-4">
-                    <p class="text-2xl font-extrabold text-rose-500 break-words">
-                        Rp {{ number_format($totalExpense, 0, ',', '.') }}
-                    </p>
-                    <p class="text-[11px] text-slate-400 mt-1">Klik - untuk catat pengeluaran</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- 3. WORKSPACE UTAMA -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-7 items-start">
-
-            <!-- KOLOM KIRI: Form Catat Transaksi -->
-            <div id="formTransaksi" class="lg:col-span-4 lg:sticky lg:top-6 neu-card p-6 sm:p-7">
-                <h2 class="text-lg font-bold text-slate-800 mb-5">Catat Transaksi</h2>
-
-                <form action="{{ route('transactions.store') }}" method="POST" class="space-y-4">
+                <form action="{{ route('transactions.store') }}" method="POST" class="space-y-4 sm:space-y-5">
                     @csrf
                     
                     <div class="neu-inset p-1.5 grid grid-cols-2 gap-2 text-xs font-bold">
                         <label class="cursor-pointer text-center">
-                            <input type="radio" name="type" id="radioExpense" value="expense" class="peer hidden" checked>
+                            <input type="radio" name="type" value="expense" class="peer hidden" checked>
                             <div class="py-2.5 rounded-xl text-slate-500 peer-checked:bg-rose-500 peer-checked:text-white peer-checked:shadow-md transition">
                                 Pengeluaran
                             </div>
                         </label>
                         <label class="cursor-pointer text-center">
-                            <input type="radio" name="type" id="radioIncome" value="income" class="peer hidden">
+                            <input type="radio" name="type" value="income" class="peer hidden">
                             <div class="py-2.5 rounded-xl text-slate-500 peer-checked:bg-blue-600 peer-checked:text-white peer-checked:shadow-md transition">
                                 Pemasukan
                             </div>
@@ -228,65 +185,95 @@
                         <input type="date" name="date" value="{{ date('Y-m-d') }}" class="neu-line-input w-full text-slate-500" required>
                     </div>
 
-                    <div class="pt-3">
-                        <button type="submit" class="neu-btn-blue w-full text-white text-sm font-bold py-3.5 tracking-wide">
-                            Simpan Transaksi
+                    <div class="pt-3 flex justify-center">
+                        <button type="submit" class="neu-btn-blue w-full sm:w-auto text-white text-sm font-bold px-10 py-3.5 tracking-wide">
+                            Simpan Data
                         </button>
                     </div>
                 </form>
             </div>
 
-            <!-- KOLOM KANAN: Grafik Arus Kas & Riwayat Transaksi -->
-            <div class="lg:col-span-8 space-y-6 sm:space-y-7">
+            <!-- KOLOM KANAN (8 Kolom): Rasio, Saldo + Grafik, dan Riwayat -->
+            <div class="lg:col-span-8 space-y-6 sm:space-y-8">
 
-                <!-- Grafik Arus Kas -->
-                <div class="neu-card p-6 sm:p-7">
-                    <div class="flex flex-wrap justify-between items-center gap-2 mb-4">
-                        <div>
-                            <h3 class="text-base sm:text-lg font-bold text-slate-800">Grafik Arus Kas</h3>
-                            <p class="text-xs text-slate-400">Perbandingan harian terbaru</p>
-                        </div>
-                        <div class="flex items-center gap-4 text-xs font-semibold">
-                            <span class="flex items-center text-slate-600">
-                                <span class="w-2.5 h-2.5 rounded-full bg-blue-600 mr-1.5"></span> Pemasukan
-                            </span>
-                            <span class="flex items-center text-slate-600">
-                                <span class="w-2.5 h-2.5 rounded-full bg-rose-500 mr-1.5"></span> Pengeluaran
-                            </span>
-                        </div>
+                <!-- Baris Atas: Progress Bar Rasio Anggaran -->
+                <div class="neu-card p-6">
+                    <div class="flex justify-between text-xs font-semibold text-slate-500 mb-3">
+                        <span>Rasio Pengeluaran</span>
+                        <span class="text-blue-600 font-bold">{{ $usagePercent }}% Terpakai</span>
                     </div>
-                    <div class="h-44 sm:h-48 w-full">
-                        <canvas id="financeWaveChart"></canvas>
+                    <div class="neu-inset h-4 w-full p-1 rounded-full overflow-hidden flex items-center">
+                        <div class="h-full rounded-full bg-gradient-to-r from-blue-500 to-rose-500 transition-all duration-500" style="width: {{ $usagePercent }}%"></div>
                     </div>
                 </div>
 
-                <!-- Riwayat Transaksi -->
-                <div id="riwayatTransaksi" class="neu-card p-6 sm:p-7 scroll-mt-6">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
-                        <h3 class="text-base sm:text-lg font-bold text-slate-800">Riwayat Transaksi</h3>
+                <!-- Baris Tengah: Kartu Sisa Saldo & Grafik Arus Kas -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+                    <!-- Kartu Sisa Saldo -->
+                    <div class="neu-card p-6 sm:p-7 flex flex-col justify-between">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Sisa Saldo</p>
+                            <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-800 mt-2 break-words">
+                                Rp {{ number_format($balance, 0, ',', '.') }}
+                            </h3>
+                            <p class="text-xs font-semibold text-blue-600 mt-1">
+                                ▲ {{ 100 - $usagePercent }}% Dana Tersisa
+                            </p>
+                        </div>
 
-                        <!-- Segmented Filter Control -->
-                        <div class="neu-inset p-1 grid grid-cols-3 gap-1 text-xs font-semibold w-full sm:w-auto">
-                            <a href="{{ route('transactions.index') }}#riwayatTransaksi" class="px-4 py-2 rounded-xl text-center transition {{ !request('type') ? 'bg-blue-600 text-white shadow' : 'text-slate-500 hover:text-slate-800' }}">
-                                Semua
-                            </a>
-                            <a href="{{ route('transactions.index', ['type' => 'income']) }}#riwayatTransaksi" class="px-4 py-2 rounded-xl text-center transition {{ request('type') == 'income' ? 'bg-blue-600 text-white shadow' : 'text-slate-500 hover:text-slate-800' }}">
-                                Masuk
-                            </a>
-                            <a href="{{ route('transactions.index', ['type' => 'expense']) }}#riwayatTransaksi" class="px-4 py-2 rounded-xl text-center transition {{ request('type') == 'expense' ? 'bg-rose-500 text-white shadow' : 'text-slate-500 hover:text-slate-800' }}">
-                                Keluar
-                            </a>
+                        <div class="mt-6 pt-4 border-t border-slate-200/80 space-y-2.5 text-xs">
+                            <div class="flex items-center justify-between">
+                                <span class="flex items-center text-slate-500">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-blue-600 mr-2"></span> Pemasukan
+                                </span>
+                                <span class="font-bold text-blue-600">Rp {{ number_format($totalIncome, 0, ',', '.') }}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="flex items-center text-slate-500">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-rose-500 mr-2"></span> Pengeluaran
+                                </span>
+                                <span class="font-bold text-rose-500">Rp {{ number_format($totalExpense, 0, ',', '.') }}</span>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="space-y-3">
+                    <!-- Kartu Grafik Arus Kas -->
+                    <div class="neu-card p-6 sm:p-7 flex flex-col justify-between">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <h4 class="text-base sm:text-lg font-bold text-slate-800">Arus Kas</h4>
+                                <p class="text-[11px] text-slate-400">Pemasukan (Biru) vs Pengeluaran (Merah)</p>
+                            </div>
+                            <div class="flex space-x-1.5 mt-1">
+                                <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                                <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                            </div>
+                        </div>
+                        <div class="h-36 w-full">
+                            <canvas id="financeWaveChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Baris Bawah: Riwayat Transaksi -->
+                <div id="riwayatTransaksi" class="neu-card p-6 sm:p-7 scroll-mt-6">
+                    <div class="flex items-center justify-between mb-5">
+                        <h3 class="text-base sm:text-lg font-bold text-slate-800">Riwayat Transaksi</h3>
+                        @if(request('type'))
+                            <span class="text-xs font-semibold px-3 py-1 rounded-full {{ request('type') == 'income' ? 'bg-blue-100 text-blue-600' : 'bg-rose-100 text-rose-500' }}">
+                                Filter: {{ request('type') == 'income' ? 'Pemasukan' : 'Pengeluaran' }}
+                            </span>
+                        @endif
+                    </div>
+
+                    <div class="space-y-3.5">
                         @forelse($transactions as $item)
-                            <div class="neu-inset px-4 sm:px-5 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                            <div class="neu-inset px-4 sm:px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                 <div class="flex items-start sm:items-center space-x-3.5">
                                     <span class="w-3 h-3 rounded-full mt-1.5 sm:mt-0 shrink-0 {{ $item->type == 'income' ? 'bg-blue-600' : 'bg-rose-500' }}"></span>
                                     <div>
                                         <p class="text-sm font-bold text-slate-800">{{ $item->title }}</p>
-                                        <p class="text-xs text-slate-500 mt-0.5">{{ $item->date->format('d M Y') }} • <span class="font-medium text-slate-600">{{ $item->category }}</span></p>
+                                        <p class="text-xs text-slate-500 mt-0.5">{{ $item->date->format('d M Y') }} • {{ $item->category }}</p>
                                     </div>
                                 </div>
 
@@ -295,7 +282,7 @@
                                         {{ $item->type == 'income' ? '+' : '-' }} Rp {{ number_format($item->amount, 0, ',', '.') }}
                                     </span>
 
-                                    <div class="flex items-center space-x-1">
+                                    <div class="flex items-center space-x-1.5">
                                         <button type="button"
                                             onclick="openEditModal({{ $item->id }}, '{{ addslashes($item->title) }}', {{ $item->amount }}, '{{ $item->type }}', '{{ addslashes($item->category) }}', '{{ $item->date->format('Y-m-d') }}')"
                                             class="w-8 h-8 rounded-lg flex items-center justify-center text-xs text-blue-600 hover:bg-blue-100/70 transition" title="Edit">
@@ -311,7 +298,7 @@
                             </div>
                         @empty
                             <div class="neu-inset py-10 text-center">
-                                <p class="text-xs font-medium text-slate-400">Belum ada transaksi pada kategori ini.</p>
+                                <p class="text-xs font-medium text-slate-400">Belum ada transaksi tercatat.</p>
                             </div>
                         @endforelse
                     </div>
@@ -414,19 +401,6 @@
 
     <!-- Script Chart.js & Modals -->
     <script>
-        function quickSelectType(type) {
-            if (type === 'income') {
-                document.getElementById('radioIncome').checked = true;
-            } else {
-                document.getElementById('radioExpense').checked = true;
-            }
-            const formCard = document.getElementById('formTransaksi');
-            formCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            setTimeout(() => {
-                formCard.querySelector('input[name="title"]').focus();
-            }, 350);
-        }
-
         function openPdfModal() {
             const modal = document.getElementById('pdfModal');
             modal.classList.remove('hidden');
@@ -472,11 +446,11 @@
 
         const ctx = document.getElementById('financeWaveChart').getContext('2d');
 
-        const gradientBlue = ctx.createLinearGradient(0, 0, 0, 170);
+        const gradientBlue = ctx.createLinearGradient(0, 0, 0, 140);
         gradientBlue.addColorStop(0, 'rgba(37, 99, 235, 0.35)');
         gradientBlue.addColorStop(1, 'rgba(37, 99, 235, 0.0)');
 
-        const gradientRed = ctx.createLinearGradient(0, 0, 0, 170);
+        const gradientRed = ctx.createLinearGradient(0, 0, 0, 140);
         gradientRed.addColorStop(0, 'rgba(244, 63, 94, 0.35)');
         gradientRed.addColorStop(1, 'rgba(244, 63, 94, 0.0)');
 
@@ -497,7 +471,7 @@
                         backgroundColor: gradientBlue,
                         fill: true,
                         tension: 0.4,
-                        pointRadius: 3.5,
+                        pointRadius: 3,
                         pointBackgroundColor: '#2563eb'
                     },
                     {
@@ -508,7 +482,7 @@
                         backgroundColor: gradientRed,
                         fill: true,
                         tension: 0.4,
-                        pointRadius: 3.5,
+                        pointRadius: 3,
                         pointBackgroundColor: '#f43f5e'
                     }
                 ]
@@ -529,7 +503,7 @@
                 scales: {
                     x: {
                         grid: { display: false },
-                        ticks: { font: { size: 10 }, color: '#64748b' }
+                        ticks: { font: { size: 9 }, color: '#64748b' }
                     },
                     y: { display: false }
                 }

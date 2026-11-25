@@ -43,7 +43,7 @@
             border: 1px solid rgba(255, 255, 255, 0.9);
             transition: all 0.2s ease;
         }
-        .neu-pill-btn:active { transform: scale(0.97); }
+        .neu-pill-btn:active { transform: scale(0.96); }
         .neu-btn-blue {
             background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.55);
@@ -65,6 +65,16 @@
             .neu-line-input { font-size: 14px; }
         }
         .neu-line-input:focus { outline: none; border-bottom-color: #2563eb; }
+
+        /* Menyembunyikan kapsul date picker bawaan iOS Safari agar tampilan seragam seperti desktop */
+        .ios-date-overlay::-webkit-calendar-picker-indicator {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body class="min-h-screen py-5 sm:py-8 px-4 sm:px-6 lg:px-8">
@@ -73,31 +83,31 @@
         $usagePercent = $totalIncome > 0 ? min(round(($totalExpense / $totalIncome) * 100), 100) : 0;
     @endphp
 
-    <div class="max-w-6xl mx-auto space-y-6 sm:space-y-7">
+    <div class="max-w-6xl mx-auto space-y-5 sm:space-y-7">
         
-        <!-- 1. HEADER -->
-        <header class="flex items-center justify-between gap-3">
-            <div>
-                <h1 class="text-xl sm:text-2xl font-extrabold text-slate-800 tracking-tight">
+        <!-- 1. HEADER: Di HP ketiga tombol (PDF, Profile, Logout) jadi kotak ikon seragam -->
+        <header class="flex items-center justify-between gap-2">
+            <div class="min-w-0">
+                <h1 class="text-xl sm:text-2xl font-extrabold text-slate-800 tracking-tight truncate">
                     Dompet<span class="text-blue-600">Mahasiswa</span>
                 </h1>
-                <p class="text-xs text-slate-500 mt-0.5">Halo, <span class="font-semibold text-slate-700">{{ Auth::user()->username }}</span></p>
+                <p class="text-xs text-slate-500 mt-0.5 truncate">Halo, <span class="font-semibold text-slate-700">{{ Auth::user()->username }}</span></p>
             </div>
 
-            <div class="flex items-center gap-2.5 sm:gap-3">
-                <button type="button" onclick="openPdfModal()" class="neu-pill-btn h-11 px-3.5 sm:px-4 flex items-center gap-2 text-xs font-semibold text-blue-600 hover:bg-blue-50">
+            <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+                <button type="button" onclick="openPdfModal()" title="Rekap PDF" class="neu-pill-btn w-11 h-11 sm:w-auto sm:px-4 flex items-center justify-center gap-2 text-xs font-semibold text-blue-600 hover:bg-blue-50">
                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                    <span>Rekap PDF</span>
+                    <span class="hidden sm:inline">Rekap PDF</span>
                 </button>
 
-                <a href="{{ route('profile') }}" class="neu-pill-btn h-11 px-3.5 sm:px-4 flex items-center gap-2 text-xs font-semibold text-slate-700 hover:text-blue-600" title="Profile">
+                <a href="{{ route('profile') }}" title="Profile" class="neu-pill-btn w-11 h-11 sm:w-auto sm:px-4 flex items-center justify-center gap-2 text-xs font-semibold text-slate-700 hover:text-blue-600">
                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                     <span class="hidden sm:inline">Profile</span>
                 </a>
 
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
-                    <button type="submit" class="neu-pill-btn h-11 px-3.5 sm:px-4 flex items-center gap-2 text-xs font-semibold text-rose-500 hover:text-rose-600" title="Logout">
+                    <button type="submit" title="Logout" class="neu-pill-btn w-11 h-11 sm:w-auto sm:px-4 flex items-center justify-center gap-2 text-xs font-semibold text-rose-500 hover:text-rose-600">
                         <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                         <span class="hidden sm:inline">Logout</span>
                     </button>
@@ -123,17 +133,17 @@
             </div>
         @endif
 
-        <!-- 2. HERO RINGKASAN KEUANGAN -->
-        <section class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
-            <!-- Kartu 1: Sisa Saldo -->
-            <div class="neu-hero-blue p-6 text-white flex flex-col justify-between">
+        <!-- 2. HERO RINGKASAN KEUANGAN: Di HP Pemasukan & Pengeluaran bersebelahan (grid-cols-2) -->
+        <section class="grid grid-cols-2 md:grid-cols-3 gap-3.5 sm:gap-6">
+            <!-- Kartu 1: Sisa Saldo (Full width di HP, 1 kolom di Desktop) -->
+            <div class="col-span-2 md:col-span-1 neu-hero-blue p-5 sm:p-6 text-white flex flex-col justify-between">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-semibold uppercase tracking-wider text-blue-100">Sisa Saldo</span>
                     <span class="text-[11px] bg-white/20 px-2.5 py-0.5 rounded-full font-medium">
                         {{ 100 - $usagePercent }}% Tersisa
                     </span>
                 </div>
-                <div class="my-3">
+                <div class="my-2.5 sm:my-3">
                     <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight break-words">
                         Rp {{ number_format($balance, 0, ',', '.') }}
                     </h2>
@@ -149,41 +159,39 @@
                 </div>
             </div>
 
-            <!-- Kartu 2: Total Pemasukan -->
-            <div class="neu-card p-6 flex flex-col justify-between">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Pemasukan</span>
-                    <button type="button" onclick="quickSelectType('income')" title="Catat Pemasukan" class="w-9 h-9 rounded-xl bg-blue-100 hover:bg-blue-600 text-blue-600 hover:text-white flex items-center justify-center font-bold text-base transition cursor-pointer shadow-sm">
+            <!-- Kartu 2: Total Pemasukan (Sebelah kiri di HP) -->
+            <div class="col-span-1 neu-card p-4 sm:p-6 flex flex-col justify-between">
+                <div class="flex items-center justify-between gap-1">
+                    <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400">Pemasukan</span>
+                    <button type="button" onclick="quickSelectType('income')" title="Catat Pemasukan" class="w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-blue-100 hover:bg-blue-600 text-blue-600 hover:text-white flex items-center justify-center font-bold text-sm sm:text-base transition cursor-pointer shrink-0">
                         +
                     </button>
                 </div>
-                <div class="mt-4">
-                    <p class="text-2xl font-extrabold text-blue-600 break-words">
+                <div class="mt-3 sm:mt-4">
+                    <p class="text-base sm:text-2xl font-extrabold text-blue-600 break-words">
                         Rp {{ number_format($totalIncome, 0, ',', '.') }}
                     </p>
-                    <p class="text-[11px] text-slate-400 mt-1">Klik + untuk catat pemasukan</p>
                 </div>
             </div>
 
-            <!-- Kartu 3: Total Pengeluaran -->
-            <div class="neu-card p-6 flex flex-col justify-between">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Pengeluaran</span>
-                    <button type="button" onclick="quickSelectType('expense')" title="Catat Pengeluaran" class="w-9 h-9 rounded-xl bg-rose-100 hover:bg-rose-500 text-rose-500 hover:text-white flex items-center justify-center font-bold text-base transition cursor-pointer shadow-sm">
+            <!-- Kartu 3: Total Pengeluaran (Sebelah kanan di HP) -->
+            <div class="col-span-1 neu-card p-4 sm:p-6 flex flex-col justify-between">
+                <div class="flex items-center justify-between gap-1">
+                    <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400">Pengeluaran</span>
+                    <button type="button" onclick="quickSelectType('expense')" title="Catat Pengeluaran" class="w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-rose-100 hover:bg-rose-500 text-rose-500 hover:text-white flex items-center justify-center font-bold text-sm sm:text-base transition cursor-pointer shrink-0">
                         -
                     </button>
                 </div>
-                <div class="mt-4">
-                    <p class="text-2xl font-extrabold text-rose-500 break-words">
+                <div class="mt-3 sm:mt-4">
+                    <p class="text-base sm:text-2xl font-extrabold text-rose-500 break-words">
                         Rp {{ number_format($totalExpense, 0, ',', '.') }}
                     </p>
-                    <p class="text-[11px] text-slate-400 mt-1">Klik - untuk catat pengeluaran</p>
                 </div>
             </div>
         </section>
 
         <!-- 3. WORKSPACE UTAMA -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-7 items-start">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-7 items-start">
 
             <!-- KOLOM KIRI: Form Catat Transaksi -->
             <div id="formTransaksi" class="lg:col-span-4 lg:sticky lg:top-6 neu-card p-6 sm:p-7">
@@ -224,8 +232,17 @@
                         </datalist>
                     </div>
 
-                    <div>
-                        <input type="date" name="date" value="{{ date('Y-m-d') }}" class="neu-line-input w-full text-slate-500" required>
+                    <!-- Input Tanggal Seragam di iPhone & Desktop (format dd/mm/yyyy + ikon kalender) -->
+                    <div class="relative neu-line-input flex items-center justify-between">
+                        <span id="createDateText" class="text-slate-600 text-base sm:text-sm pointer-events-none">
+                            {{ date('d/m/Y') }}
+                        </span>
+                        <svg class="w-4 h-4 text-slate-500 pointer-events-none shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        <input type="date" name="date" id="createDateInput" value="{{ date('Y-m-d') }}"
+                            onchange="syncDateDisplay(this, 'createDateText')"
+                            class="ios-date-overlay absolute inset-0 w-full h-full opacity-0 cursor-pointer" required>
                     </div>
 
                     <div class="pt-3">
@@ -237,15 +254,12 @@
             </div>
 
             <!-- KOLOM KANAN: Grafik Arus Kas & Riwayat Transaksi -->
-            <div class="lg:col-span-8 space-y-6 sm:space-y-7">
+            <div class="lg:col-span-8 space-y-5 sm:space-y-7">
 
                 <!-- Grafik Arus Kas -->
                 <div class="neu-card p-6 sm:p-7">
                     <div class="flex flex-wrap justify-between items-center gap-2 mb-4">
-                        <div>
-                            <h3 class="text-base sm:text-lg font-bold text-slate-800">Grafik Arus Kas</h3>
-                            <p class="text-xs text-slate-400">Perbandingan harian terbaru</p>
-                        </div>
+                        <h3 class="text-base sm:text-lg font-bold text-slate-800">Grafik Arus Kas</h3>
                         <div class="flex items-center gap-4 text-xs font-semibold">
                             <span class="flex items-center text-slate-600">
                                 <span class="w-2.5 h-2.5 rounded-full bg-blue-600 mr-1.5"></span> Pemasukan
@@ -311,7 +325,7 @@
                             </div>
                         @empty
                             <div class="neu-inset py-10 text-center">
-                                <p class="text-xs font-medium text-slate-400">Belum ada transaksi pada kategori ini.</p>
+                                <p class="text-xs font-medium text-slate-400">Belum ada transaksi tercatat.</p>
                             </div>
                         @endforelse
                     </div>
@@ -400,8 +414,12 @@
                 <div>
                     <input type="text" name="category" id="editCategory" list="category-list" placeholder="Kategori" class="neu-line-input w-full text-slate-700" required>
                 </div>
-                <div>
-                    <input type="date" name="date" id="editDate" class="neu-line-input w-full text-slate-500" required>
+                <div class="relative neu-line-input flex items-center justify-between">
+                    <span id="editDateText" class="text-slate-600 text-base sm:text-sm pointer-events-none"></span>
+                    <svg class="w-4 h-4 text-slate-500 pointer-events-none shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <input type="date" name="date" id="editDate" onchange="syncDateDisplay(this, 'editDateText')" class="ios-date-overlay absolute inset-0 w-full h-full opacity-0 cursor-pointer" required>
                 </div>
 
                 <div class="pt-3 flex justify-end gap-3">
@@ -414,6 +432,17 @@
 
     <!-- Script Chart.js & Modals -->
     <script>
+        function formatIndoDate(yyyyMmDd) {
+            if (!yyyyMmDd) return '';
+            const parts = yyyyMmDd.split('-');
+            if (parts.length !== 3) return yyyyMmDd;
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+
+        function syncDateDisplay(inputEl, targetSpanId) {
+            document.getElementById(targetSpanId).textContent = formatIndoDate(inputEl.value);
+        }
+
         function quickSelectType(type) {
             if (type === 'income') {
                 document.getElementById('radioIncome').checked = true;
@@ -453,6 +482,7 @@
             document.getElementById('editAmount').value = amount;
             document.getElementById('editCategory').value = category;
             document.getElementById('editDate').value = date;
+            document.getElementById('editDateText').textContent = formatIndoDate(date);
 
             if (type === 'income') {
                 document.getElementById('editTypeIncome').checked = true;

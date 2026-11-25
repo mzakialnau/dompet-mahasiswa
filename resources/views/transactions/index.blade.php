@@ -2,50 +2,67 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>DompetMahasiswa - Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #E8EEF5; color: #334155; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #DCE5F0;
+            color: #1e293b;
+            padding-bottom: env(safe-area-inset-bottom);
+            -webkit-tap-highlight-color: transparent;
+        }
         .neu-card {
-            background: linear-gradient(145deg, #f3f7fc, #e2e8f0);
-            box-shadow: 10px 10px 20px #cbd5e1, -10px -10px 20px #ffffff;
+            background: linear-gradient(145deg, #ffffff, #eef3f9);
+            box-shadow: 10px 10px 22px rgba(163, 177, 198, 0.55), -10px -10px 22px rgba(255, 255, 255, 0.9);
             border-radius: 26px;
-            border: 1px solid rgba(255, 255, 255, 0.7);
+            border: 1.5px solid rgba(255, 255, 255, 0.95);
+        }
+        .neu-hero-blue {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            box-shadow: 10px 12px 24px rgba(37, 99, 235, 0.35), -6px -6px 16px rgba(255, 255, 255, 0.7);
+            border-radius: 26px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
         }
         .neu-inset {
-            background: #E8EEF5;
-            box-shadow: inset 4px 4px 8px #cfd8e3, inset -4px -4px 8px #ffffff;
-            border-radius: 16px;
-        }
-        .neu-icon-btn {
-            background: linear-gradient(145deg, #f5f8fc, #dfe6ef);
-            box-shadow: 5px 5px 10px #cbd5e1, -5px -5px 10px #ffffff;
+            background: #E4ECF5;
+            box-shadow: inset 4px 4px 8px rgba(163, 177, 198, 0.5), inset -4px -4px 8px rgba(255, 255, 255, 0.9);
             border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .neu-pill-btn {
+            background: linear-gradient(145deg, #ffffff, #e6edf5);
+            box-shadow: 5px 5px 12px rgba(163, 177, 198, 0.5), -5px -5px 12px rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.9);
             transition: all 0.2s ease;
         }
-        .neu-icon-btn:hover, .neu-icon-btn.active {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-            color: #ffffff;
-            box-shadow: 5px 5px 14px rgba(37, 99, 235, 0.35), -3px -3px 8px #ffffff;
-        }
+        .neu-pill-btn:active { transform: scale(0.97); }
         .neu-btn-blue {
-            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
-            box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.5);
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.55);
             border-radius: 9999px;
-            transition: transform 0.15s ease;
+            transition: all 0.15s ease;
         }
-        .neu-btn-blue:hover { transform: translateY(-2px); }
+        .neu-btn-blue:hover { transform: translateY(-1px); }
+        .neu-btn-blue:active { transform: scale(0.98); }
         .neu-line-input {
             background: transparent;
             border: none;
             border-bottom: 1.5px solid #cbd5e1;
             border-radius: 0;
-            padding: 10px 4px;
+            padding: 11px 4px;
+            font-size: 16px;
             transition: border-color 0.2s;
+        }
+        @media (min-width: 640px) {
+            .neu-line-input { font-size: 14px; }
         }
         .neu-line-input:focus { outline: none; border-bottom-color: #2563eb; }
     </style>
@@ -56,63 +73,33 @@
         $usagePercent = $totalIncome > 0 ? min(round(($totalExpense / $totalIncome) * 100), 100) : 0;
     @endphp
 
-    <div class="max-w-6xl mx-auto space-y-6 sm:space-y-8">
+    <div class="max-w-6xl mx-auto space-y-6 sm:space-y-7">
         
-        <!-- Header & Navigasi -->
-        <header class="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="w-full md:w-auto flex justify-between items-center">
-                <div>
-                    <h1 class="text-xl sm:text-2xl font-bold text-slate-800 tracking-tight">Dompet<span class="text-blue-600">Mahasiswa</span></h1>
-                    <p class="text-xs text-slate-500 mt-0.5">Halo, <span class="font-semibold text-slate-700">{{ Auth::user()->username }}</span></p>
-                </div>
-
-                <!-- Menu Profile & Logout Mobile -->
-                <div class="flex items-center gap-2 md:hidden">
-                    <a href="{{ route('profile') }}" class="neu-icon-btn p-2.5 text-slate-600" title="Profile">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                    </a>
-                    <form action="{{ route('logout') }}" method="POST">
-                        @csrf
-                        <button type="submit" class="neu-icon-btn p-2.5 text-rose-500" title="Logout">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                        </button>
-                    </form>
-                </div>
+        <!-- 1. HEADER -->
+        <header class="flex items-center justify-between gap-3">
+            <div>
+                <h1 class="text-xl sm:text-2xl font-extrabold text-slate-800 tracking-tight">
+                    Dompet<span class="text-blue-600">Mahasiswa</span>
+                </h1>
+                <p class="text-xs text-slate-500 mt-0.5">Halo, <span class="font-semibold text-slate-700">{{ Auth::user()->username }}</span></p>
             </div>
 
-            <!-- Baris Tombol Filter, Download PDF, Profile & Logout -->
-            <div class="grid grid-cols-4 md:flex items-center gap-2.5 sm:gap-3 w-full md:w-auto">
-                <a href="{{ route('transactions.index') }}" class="neu-icon-btn h-14 md:w-16 md:h-16 flex flex-col items-center justify-center text-[11px] sm:text-xs font-medium {{ !request('type') ? 'active' : 'text-slate-600' }}">
-                    <svg class="w-4 h-4 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-                    Semua
-                </a>
-                <a href="{{ route('transactions.index', ['type' => 'income']) }}" class="neu-icon-btn h-14 md:w-16 md:h-16 flex flex-col items-center justify-center text-[11px] sm:text-xs font-medium {{ request('type') == 'income' ? 'active' : 'text-slate-600' }}">
-                    <svg class="w-4 h-4 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    Masuk
-                </a>
-                <a href="{{ route('transactions.index', ['type' => 'expense']) }}" class="neu-icon-btn h-14 md:w-16 md:h-16 flex flex-col items-center justify-center text-[11px] sm:text-xs font-medium {{ request('type') == 'expense' ? 'active' : 'text-slate-600' }}">
-                    <svg class="w-4 h-4 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
-                    Keluar
-                </a>
-
-                <!-- Tombol Rekap PDF -->
-                <button type="button" onclick="openPdfModal()" class="neu-icon-btn h-14 md:w-16 md:h-16 flex flex-col items-center justify-center text-[11px] sm:text-xs font-medium text-blue-600">
-                    <svg class="w-4 h-4 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                    PDF
+            <div class="flex items-center gap-2.5 sm:gap-3">
+                <button type="button" onclick="openPdfModal()" class="neu-pill-btn h-11 px-3.5 sm:px-4 flex items-center gap-2 text-xs font-semibold text-blue-600 hover:bg-blue-50">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    <span>Rekap PDF</span>
                 </button>
 
-                <!-- Menu Profile Desktop -->
-                <a href="{{ route('profile') }}" class="hidden md:flex neu-icon-btn w-16 h-16 flex-col items-center justify-center text-xs font-medium text-slate-600">
-                    <svg class="w-4 h-4 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                    Profile
+                <a href="{{ route('profile') }}" class="neu-pill-btn h-11 px-3.5 sm:px-4 flex items-center gap-2 text-xs font-semibold text-slate-700 hover:text-blue-600" title="Profile">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    <span class="hidden sm:inline">Profile</span>
                 </a>
 
-                <!-- Tombol Logout Desktop -->
-                <form action="{{ route('logout') }}" method="POST" class="hidden md:block">
+                <form action="{{ route('logout') }}" method="POST">
                     @csrf
-                    <button type="submit" class="neu-icon-btn w-16 h-16 flex flex-col items-center justify-center text-xs font-medium text-rose-500 hover:!bg-rose-500 hover:!text-white">
-                        <svg class="w-4 h-4 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                        Logout
+                    <button type="submit" class="neu-pill-btn h-11 px-3.5 sm:px-4 flex items-center gap-2 text-xs font-semibold text-rose-500 hover:text-rose-600" title="Logout">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                        <span class="hidden sm:inline">Logout</span>
                     </button>
                 </form>
             </div>
@@ -120,7 +107,7 @@
 
         <!-- Notifikasi -->
         @if(session('success'))
-            <div class="neu-card px-5 py-3.5 text-xs sm:text-sm font-medium text-blue-700 flex items-center justify-between">
+            <div class="neu-card px-5 py-3.5 text-xs sm:text-sm font-semibold text-blue-700 flex items-center justify-between">
                 <span>{{ session('success') }}</span>
                 <span class="w-2.5 h-2.5 rounded-full bg-blue-600 shrink-0"></span>
             </div>
@@ -136,41 +123,100 @@
             </div>
         @endif
 
-        <!-- Grid Utama -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
+        <!-- 2. HERO RINGKASAN KEUANGAN -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
+            <!-- Kartu 1: Sisa Saldo -->
+            <div class="neu-hero-blue p-6 text-white flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-blue-100">Sisa Saldo</span>
+                    <span class="text-[11px] bg-white/20 px-2.5 py-0.5 rounded-full font-medium">
+                        {{ 100 - $usagePercent }}% Tersisa
+                    </span>
+                </div>
+                <div class="my-3">
+                    <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight break-words">
+                        Rp {{ number_format($balance, 0, ',', '.') }}
+                    </h2>
+                </div>
+                <div>
+                    <div class="flex justify-between text-[11px] text-blue-100 mb-1.5">
+                        <span>Rasio Pemakaian</span>
+                        <span class="font-bold text-white">{{ $usagePercent }}%</span>
+                    </div>
+                    <div class="w-full h-2 bg-blue-950/35 rounded-full overflow-hidden">
+                        <div class="h-full bg-white rounded-full transition-all duration-500" style="width: {{ $usagePercent }}%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kartu 2: Total Pemasukan -->
+            <div class="neu-card p-6 flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Pemasukan</span>
+                    <button type="button" onclick="quickSelectType('income')" title="Catat Pemasukan" class="w-9 h-9 rounded-xl bg-blue-100 hover:bg-blue-600 text-blue-600 hover:text-white flex items-center justify-center font-bold text-base transition cursor-pointer shadow-sm">
+                        +
+                    </button>
+                </div>
+                <div class="mt-4">
+                    <p class="text-2xl font-extrabold text-blue-600 break-words">
+                        Rp {{ number_format($totalIncome, 0, ',', '.') }}
+                    </p>
+                    <p class="text-[11px] text-slate-400 mt-1">Klik + untuk catat pemasukan</p>
+                </div>
+            </div>
+
+            <!-- Kartu 3: Total Pengeluaran -->
+            <div class="neu-card p-6 flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Pengeluaran</span>
+                    <button type="button" onclick="quickSelectType('expense')" title="Catat Pengeluaran" class="w-9 h-9 rounded-xl bg-rose-100 hover:bg-rose-500 text-rose-500 hover:text-white flex items-center justify-center font-bold text-base transition cursor-pointer shadow-sm">
+                        -
+                    </button>
+                </div>
+                <div class="mt-4">
+                    <p class="text-2xl font-extrabold text-rose-500 break-words">
+                        Rp {{ number_format($totalExpense, 0, ',', '.') }}
+                    </p>
+                    <p class="text-[11px] text-slate-400 mt-1">Klik - untuk catat pengeluaran</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. WORKSPACE UTAMA -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-7 items-start">
 
             <!-- KOLOM KIRI: Form Catat Transaksi -->
-            <div class="lg:col-span-4 neu-card p-6 sm:p-8">
-                <h2 class="text-lg sm:text-xl font-bold text-slate-800 mb-5">Catat Transaksi</h2>
+            <div id="formTransaksi" class="lg:col-span-4 lg:sticky lg:top-6 neu-card p-6 sm:p-7">
+                <h2 class="text-lg font-bold text-slate-800 mb-5">Catat Transaksi</h2>
 
-                <form action="{{ route('transactions.store') }}" method="POST" class="space-y-4 sm:space-y-5">
+                <form action="{{ route('transactions.store') }}" method="POST" class="space-y-4">
                     @csrf
                     
-                    <div class="neu-inset p-1.5 grid grid-cols-2 gap-2 text-xs font-semibold">
+                    <div class="neu-inset p-1.5 grid grid-cols-2 gap-2 text-xs font-bold">
                         <label class="cursor-pointer text-center">
-                            <input type="radio" name="type" value="expense" class="peer hidden" checked>
-                            <div class="py-2 rounded-xl text-slate-500 peer-checked:bg-rose-500 peer-checked:text-white peer-checked:shadow-md transition">
+                            <input type="radio" name="type" id="radioExpense" value="expense" class="peer hidden" checked>
+                            <div class="py-2.5 rounded-xl text-slate-500 peer-checked:bg-rose-500 peer-checked:text-white peer-checked:shadow-md transition">
                                 Pengeluaran
                             </div>
                         </label>
                         <label class="cursor-pointer text-center">
-                            <input type="radio" name="type" value="income" class="peer hidden">
-                            <div class="py-2 rounded-xl text-slate-500 peer-checked:bg-blue-600 peer-checked:text-white peer-checked:shadow-md transition">
+                            <input type="radio" name="type" id="radioIncome" value="income" class="peer hidden">
+                            <div class="py-2.5 rounded-xl text-slate-500 peer-checked:bg-blue-600 peer-checked:text-white peer-checked:shadow-md transition">
                                 Pemasukan
                             </div>
                         </label>
                     </div>
 
                     <div>
-                        <input type="text" name="title" placeholder="Keterangan" class="neu-line-input w-full text-sm text-slate-700 placeholder-slate-400" required>
+                        <input type="text" name="title" placeholder="Keterangan" class="neu-line-input w-full text-slate-700 placeholder-slate-400" required>
                     </div>
 
                     <div>
-                        <input type="number" name="amount" placeholder="Nominal" min="1" class="neu-line-input w-full text-sm text-slate-700 placeholder-slate-400" required>
+                        <input type="number" name="amount" inputmode="numeric" placeholder="Nominal" min="1" class="neu-line-input w-full text-slate-700 placeholder-slate-400" required>
                     </div>
 
                     <div>
-                        <input type="text" name="category" list="category-list" placeholder="Kategori" class="neu-line-input w-full text-sm text-slate-700 placeholder-slate-400" required>
+                        <input type="text" name="category" list="category-list" placeholder="Kategori" class="neu-line-input w-full text-slate-700 placeholder-slate-400" required>
                         <datalist id="category-list">
                             @foreach($userCategories as $cat)
                                 <option value="{{ $cat }}">
@@ -179,112 +225,94 @@
                     </div>
 
                     <div>
-                        <input type="date" name="date" value="{{ date('Y-m-d') }}" class="neu-line-input w-full text-xs text-slate-500" required>
+                        <input type="date" name="date" value="{{ date('Y-m-d') }}" class="neu-line-input w-full text-slate-500" required>
                     </div>
 
-                    <div class="pt-3 flex justify-center">
-                        <button type="submit" class="neu-btn-blue w-full sm:w-auto text-white text-sm font-semibold px-10 py-3.5 tracking-wide">
-                            Simpan Data
+                    <div class="pt-3">
+                        <button type="submit" class="neu-btn-blue w-full text-white text-sm font-bold py-3.5 tracking-wide">
+                            Simpan Transaksi
                         </button>
                     </div>
                 </form>
             </div>
 
-            <!-- KOLOM KANAN: Statistik, Grafik & Riwayat Transaksi -->
-            <div class="lg:col-span-8 space-y-6 sm:space-y-8">
+            <!-- KOLOM KANAN: Grafik Arus Kas & Riwayat Transaksi -->
+            <div class="lg:col-span-8 space-y-6 sm:space-y-7">
 
-                <!-- Progress Bar Rasio Anggaran -->
-                <div class="neu-card p-5 sm:p-6">
-                    <div class="flex justify-between text-xs font-semibold text-slate-500 mb-3">
-                        <span>Rasio Pengeluaran</span>
-                        <span class="text-blue-600 font-bold">{{ $usagePercent }}% Terpakai</span>
-                    </div>
-                    <div class="neu-inset h-4 w-full p-1 rounded-full overflow-hidden flex items-center">
-                        <div class="h-full rounded-full bg-gradient-to-r from-blue-500 to-rose-500 transition-all duration-500" style="width: {{ $usagePercent }}%"></div>
-                    </div>
-                </div>
-
-                <!-- Kartu Saldo & Grafik Arus Kas (Biru & Merah) -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-                    <div class="neu-card p-6 sm:p-7 flex flex-col justify-between">
+                <!-- Grafik Arus Kas -->
+                <div class="neu-card p-6 sm:p-7">
+                    <div class="flex flex-wrap justify-between items-center gap-2 mb-4">
                         <div>
-                            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Sisa Saldo</p>
-                            <h3 class="text-2xl sm:text-3xl font-bold text-slate-800 mt-2 break-words">
-                                Rp {{ number_format($balance, 0, ',', '.') }}
-                            </h3>
-                            <p class="text-xs font-semibold text-blue-600 mt-1">
-                                ▲ {{ 100 - $usagePercent }}% Dana Tersisa
-                            </p>
+                            <h3 class="text-base sm:text-lg font-bold text-slate-800">Grafik Arus Kas</h3>
+                            <p class="text-xs text-slate-400">Perbandingan harian terbaru</p>
                         </div>
-
-                        <div class="mt-6 pt-4 border-t border-slate-200/70 space-y-2.5 text-xs">
-                            <div class="flex items-center justify-between">
-                                <span class="flex items-center text-slate-500">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-blue-600 mr-2"></span> Pemasukan
-                                </span>
-                                <span class="font-bold text-blue-600">Rp {{ number_format($totalIncome, 0, ',', '.') }}</span>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <span class="flex items-center text-slate-500">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-rose-500 mr-2"></span> Pengeluaran
-                                </span>
-                                <span class="font-bold text-rose-500">Rp {{ number_format($totalExpense, 0, ',', '.') }}</span>
-                            </div>
+                        <div class="flex items-center gap-4 text-xs font-semibold">
+                            <span class="flex items-center text-slate-600">
+                                <span class="w-2.5 h-2.5 rounded-full bg-blue-600 mr-1.5"></span> Pemasukan
+                            </span>
+                            <span class="flex items-center text-slate-600">
+                                <span class="w-2.5 h-2.5 rounded-full bg-rose-500 mr-1.5"></span> Pengeluaran
+                            </span>
                         </div>
                     </div>
-
-                    <div class="neu-card p-6 sm:p-7 flex flex-col justify-between">
-                        <div class="flex justify-between items-start mb-2">
-                            <div>
-                                <h4 class="text-base sm:text-lg font-bold text-slate-800">Arus Kas</h4>
-                                <p class="text-[11px] text-slate-400">Pemasukan (Biru) vs Pengeluaran (Merah)</p>
-                            </div>
-                            <div class="flex space-x-1.5">
-                                <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
-                                <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-                            </div>
-                        </div>
-                        <div class="h-36 w-full">
-                            <canvas id="financeWaveChart"></canvas>
-                        </div>
+                    <div class="h-44 sm:h-48 w-full">
+                        <canvas id="financeWaveChart"></canvas>
                     </div>
                 </div>
 
                 <!-- Riwayat Transaksi -->
-                <div class="neu-card p-5 sm:p-7">
-                    <h3 class="text-base font-bold text-slate-800 mb-4 sm:mb-5">Riwayat Transaksi</h3>
+                <div id="riwayatTransaksi" class="neu-card p-6 sm:p-7 scroll-mt-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+                        <h3 class="text-base sm:text-lg font-bold text-slate-800">Riwayat Transaksi</h3>
+
+                        <!-- Segmented Filter Control -->
+                        <div class="neu-inset p-1 grid grid-cols-3 gap-1 text-xs font-semibold w-full sm:w-auto">
+                            <a href="{{ route('transactions.index') }}#riwayatTransaksi" class="px-4 py-2 rounded-xl text-center transition {{ !request('type') ? 'bg-blue-600 text-white shadow' : 'text-slate-500 hover:text-slate-800' }}">
+                                Semua
+                            </a>
+                            <a href="{{ route('transactions.index', ['type' => 'income']) }}#riwayatTransaksi" class="px-4 py-2 rounded-xl text-center transition {{ request('type') == 'income' ? 'bg-blue-600 text-white shadow' : 'text-slate-500 hover:text-slate-800' }}">
+                                Masuk
+                            </a>
+                            <a href="{{ route('transactions.index', ['type' => 'expense']) }}#riwayatTransaksi" class="px-4 py-2 rounded-xl text-center transition {{ request('type') == 'expense' ? 'bg-rose-500 text-white shadow' : 'text-slate-500 hover:text-slate-800' }}">
+                                Keluar
+                            </a>
+                        </div>
+                    </div>
+
                     <div class="space-y-3">
                         @forelse($transactions as $item)
                             <div class="neu-inset px-4 sm:px-5 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-                                <div class="flex items-start sm:items-center space-x-3">
-                                    <span class="w-3 h-3 rounded-full mt-1 sm:mt-0 shrink-0 {{ $item->type == 'income' ? 'bg-blue-600' : 'bg-rose-500' }}"></span>
+                                <div class="flex items-start sm:items-center space-x-3.5">
+                                    <span class="w-3 h-3 rounded-full mt-1.5 sm:mt-0 shrink-0 {{ $item->type == 'income' ? 'bg-blue-600' : 'bg-rose-500' }}"></span>
                                     <div>
-                                        <p class="text-sm font-semibold text-slate-800">{{ $item->title }}</p>
-                                        <p class="text-[11px] text-slate-400">{{ $item->date->format('d M Y') }} • {{ $item->category }}</p>
+                                        <p class="text-sm font-bold text-slate-800">{{ $item->title }}</p>
+                                        <p class="text-xs text-slate-500 mt-0.5">{{ $item->date->format('d M Y') }} • <span class="font-medium text-slate-600">{{ $item->category }}</span></p>
                                     </div>
                                 </div>
 
-                                <div class="flex items-center justify-between sm:justify-end space-x-3 pt-1 sm:pt-0 border-t sm:border-t-0 border-slate-200/50">
-                                    <span class="text-sm font-bold {{ $item->type == 'income' ? 'text-blue-600' : 'text-rose-500' }}">
+                                <div class="flex items-center justify-between sm:justify-end space-x-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-300/60">
+                                    <span class="text-sm font-extrabold {{ $item->type == 'income' ? 'text-blue-600' : 'text-rose-500' }}">
                                         {{ $item->type == 'income' ? '+' : '-' }} Rp {{ number_format($item->amount, 0, ',', '.') }}
                                     </span>
 
-                                    <div class="flex items-center space-x-2">
+                                    <div class="flex items-center space-x-1">
                                         <button type="button"
                                             onclick="openEditModal({{ $item->id }}, '{{ addslashes($item->title) }}', {{ $item->amount }}, '{{ $item->type }}', '{{ addslashes($item->category) }}', '{{ $item->date->format('Y-m-d') }}')"
-                                            class="text-xs text-blue-600 hover:text-blue-800 p-1 transition" title="Edit">
+                                            class="w-8 h-8 rounded-lg flex items-center justify-center text-xs text-blue-600 hover:bg-blue-100/70 transition" title="Edit">
                                             ✎
                                         </button>
                                         <form action="{{ route('transactions.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Hapus catatan ini?')">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="text-xs text-slate-400 hover:text-rose-500 p-1 transition" title="Hapus">✕</button>
+                                            <button type="submit" class="w-8 h-8 rounded-lg flex items-center justify-center text-xs text-slate-400 hover:text-rose-600 hover:bg-rose-100/70 transition" title="Hapus">✕</button>
                                         </form>
                                     </div>
                                 </div>
                             </div>
                         @empty
-                            <p class="text-center text-xs text-slate-400 py-6">Belum ada transaksi tercatat.</p>
+                            <div class="neu-inset py-10 text-center">
+                                <p class="text-xs font-medium text-slate-400">Belum ada transaksi pada kategori ini.</p>
+                            </div>
                         @endforelse
                     </div>
 
@@ -297,47 +325,44 @@
         </div>
     </div>
 
-    <!-- Modal Download Rekap PDF (Filter Jangka Hari atau Bulan) -->
-    <div id="pdfModal" class="fixed inset-0 bg-slate-900/30 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <!-- Modal Download Rekap PDF -->
+    <div id="pdfModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="neu-card w-full max-w-md p-6 sm:p-8 relative">
-            <button type="button" onclick="closePdfModal()" class="absolute right-6 top-6 text-slate-400 hover:text-slate-700 text-sm font-bold">✕</button>
+            <button type="button" onclick="closePdfModal()" class="absolute right-6 top-6 w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 text-sm font-bold">✕</button>
             <h3 class="text-lg font-bold text-slate-800 mb-1">Download Rekap PDF</h3>
-            <p class="text-xs text-slate-400 mb-5">Pilih periode laporan keuangan yang ingin diunduh</p>
+            <p class="text-xs text-slate-500 mb-5">Pilih periode laporan keuangan yang ingin diunduh</p>
 
             <form action="{{ route('transactions.pdf') }}" method="GET" class="space-y-5">
-                <!-- Toggle Pilihan Bulan atau Jangka Hari -->
-                <div class="neu-inset p-1.5 grid grid-cols-2 gap-2 text-xs font-semibold">
+                <div class="neu-inset p-1.5 grid grid-cols-2 gap-2 text-xs font-bold">
                     <label class="cursor-pointer text-center">
                         <input type="radio" name="filter_mode" value="month" class="peer hidden" checked onchange="togglePdfFilter('month')">
-                        <div class="py-2 rounded-xl text-slate-500 peer-checked:bg-blue-600 peer-checked:text-white transition">Per Bulan</div>
+                        <div class="py-2.5 rounded-xl text-slate-500 peer-checked:bg-blue-600 peer-checked:text-white transition">Per Bulan</div>
                     </label>
                     <label class="cursor-pointer text-center">
                         <input type="radio" name="filter_mode" value="day" class="peer hidden" onchange="togglePdfFilter('day')">
-                        <div class="py-2 rounded-xl text-slate-500 peer-checked:bg-blue-600 peer-checked:text-white transition">Jangka Hari</div>
+                        <div class="py-2.5 rounded-xl text-slate-500 peer-checked:bg-blue-600 peer-checked:text-white transition">Jangka Hari</div>
                     </label>
                 </div>
 
-                <!-- Input Bulan -->
                 <div id="pdfMonthInput">
-                    <label class="block text-xs font-semibold text-slate-500 mb-1">Pilih Bulan</label>
-                    <input type="month" name="month" value="{{ date('Y-m') }}" class="neu-line-input w-full text-sm text-slate-700">
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Bulan</label>
+                    <input type="month" name="month" value="{{ date('Y-m') }}" class="neu-line-input w-full text-slate-700">
                 </div>
 
-                <!-- Input Jangka Hari -->
                 <div id="pdfDayInput" class="hidden grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1">Dari Tanggal</label>
-                        <input type="date" name="start_date" value="{{ date('Y-m-01') }}" class="neu-line-input w-full text-xs text-slate-700">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Dari Tanggal</label>
+                        <input type="date" name="start_date" value="{{ date('Y-m-01') }}" class="neu-line-input w-full text-slate-700">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1">Sampai Tanggal</label>
-                        <input type="date" name="end_date" value="{{ date('Y-m-d') }}" class="neu-line-input w-full text-xs text-slate-700">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Sampai Tanggal</label>
+                        <input type="date" name="end_date" value="{{ date('Y-m-d') }}" class="neu-line-input w-full text-slate-700">
                     </div>
                 </div>
 
                 <div class="pt-3 flex justify-end gap-3">
-                    <button type="button" onclick="closePdfModal()" class="px-4 py-2 text-xs font-semibold text-slate-500">Batal</button>
-                    <button type="submit" onclick="setTimeout(closePdfModal, 500)" class="neu-btn-blue text-white text-xs font-semibold px-7 py-3">
+                    <button type="button" onclick="closePdfModal()" class="px-4 py-2.5 text-xs font-semibold text-slate-500">Batal</button>
+                    <button type="submit" onclick="setTimeout(closePdfModal, 500)" class="neu-btn-blue text-white text-xs font-bold px-7 py-3">
                         Unduh PDF
                     </button>
                 </div>
@@ -346,49 +371,62 @@
     </div>
 
     <!-- Modal Edit Transaksi -->
-    <div id="editModal" class="fixed inset-0 bg-slate-900/30 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div id="editModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="neu-card w-full max-w-md p-6 sm:p-8 relative">
-            <button type="button" onclick="closeEditModal()" class="absolute right-6 top-6 text-slate-400 hover:text-slate-700 text-sm font-bold">✕</button>
+            <button type="button" onclick="closeEditModal()" class="absolute right-6 top-6 w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 text-sm font-bold">✕</button>
             <h3 class="text-lg font-bold text-slate-800 mb-5">Edit Transaksi</h3>
 
             <form id="editForm" method="POST" class="space-y-4">
                 @csrf
                 @method('PUT')
 
-                <div class="neu-inset p-1.5 grid grid-cols-2 gap-2 text-xs font-semibold">
+                <div class="neu-inset p-1.5 grid grid-cols-2 gap-2 text-xs font-bold">
                     <label class="cursor-pointer text-center">
                         <input type="radio" name="type" id="editTypeExpense" value="expense" class="peer hidden">
-                        <div class="py-2 rounded-xl text-slate-500 peer-checked:bg-rose-500 peer-checked:text-white transition">Pengeluaran</div>
+                        <div class="py-2.5 rounded-xl text-slate-500 peer-checked:bg-rose-500 peer-checked:text-white transition">Pengeluaran</div>
                     </label>
                     <label class="cursor-pointer text-center">
                         <input type="radio" name="type" id="editTypeIncome" value="income" class="peer hidden">
-                        <div class="py-2 rounded-xl text-slate-500 peer-checked:bg-blue-600 peer-checked:text-white transition">Pemasukan</div>
+                        <div class="py-2.5 rounded-xl text-slate-500 peer-checked:bg-blue-600 peer-checked:text-white transition">Pemasukan</div>
                     </label>
                 </div>
 
                 <div>
-                    <input type="text" name="title" id="editTitle" placeholder="Keterangan" class="neu-line-input w-full text-sm text-slate-700" required>
+                    <input type="text" name="title" id="editTitle" placeholder="Keterangan" class="neu-line-input w-full text-slate-700" required>
                 </div>
                 <div>
-                    <input type="number" name="amount" id="editAmount" placeholder="Nominal" min="1" class="neu-line-input w-full text-sm text-slate-700" required>
+                    <input type="number" name="amount" id="editAmount" inputmode="numeric" placeholder="Nominal" min="1" class="neu-line-input w-full text-slate-700" required>
                 </div>
                 <div>
-                    <input type="text" name="category" id="editCategory" list="category-list" placeholder="Kategori" class="neu-line-input w-full text-sm text-slate-700" required>
+                    <input type="text" name="category" id="editCategory" list="category-list" placeholder="Kategori" class="neu-line-input w-full text-slate-700" required>
                 </div>
                 <div>
-                    <input type="date" name="date" id="editDate" class="neu-line-input w-full text-xs text-slate-500" required>
+                    <input type="date" name="date" id="editDate" class="neu-line-input w-full text-slate-500" required>
                 </div>
 
                 <div class="pt-3 flex justify-end gap-3">
                     <button type="button" onclick="closeEditModal()" class="px-5 py-2.5 text-xs font-semibold text-slate-500">Batal</button>
-                    <button type="submit" class="neu-btn-blue text-white text-xs font-semibold px-7 py-3">Simpan Perubahan</button>
+                    <button type="submit" class="neu-btn-blue text-white text-xs font-bold px-7 py-3">Simpan Perubahan</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Script Chart.js (Pemasukan Biru & Pengeluaran Merah) & Modals -->
+    <!-- Script Chart.js & Modals -->
     <script>
+        function quickSelectType(type) {
+            if (type === 'income') {
+                document.getElementById('radioIncome').checked = true;
+            } else {
+                document.getElementById('radioExpense').checked = true;
+            }
+            const formCard = document.getElementById('formTransaksi');
+            formCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => {
+                formCard.querySelector('input[name="title"]').focus();
+            }, 350);
+        }
+
         function openPdfModal() {
             const modal = document.getElementById('pdfModal');
             modal.classList.remove('hidden');
@@ -434,12 +472,12 @@
 
         const ctx = document.getElementById('financeWaveChart').getContext('2d');
 
-        const gradientBlue = ctx.createLinearGradient(0, 0, 0, 140);
-        gradientBlue.addColorStop(0, 'rgba(37, 99, 235, 0.45)');
+        const gradientBlue = ctx.createLinearGradient(0, 0, 0, 170);
+        gradientBlue.addColorStop(0, 'rgba(37, 99, 235, 0.35)');
         gradientBlue.addColorStop(1, 'rgba(37, 99, 235, 0.0)');
 
-        const gradientRed = ctx.createLinearGradient(0, 0, 0, 140);
-        gradientRed.addColorStop(0, 'rgba(244, 63, 94, 0.45)');
+        const gradientRed = ctx.createLinearGradient(0, 0, 0, 170);
+        gradientRed.addColorStop(0, 'rgba(244, 63, 94, 0.35)');
         gradientRed.addColorStop(1, 'rgba(244, 63, 94, 0.0)');
 
         const chartLabels = {!! json_encode($chartLabels) !!};
@@ -454,23 +492,23 @@
                     {
                         label: 'Pemasukan',
                         data: incomeData.length ? incomeData : [0, 0],
-                        borderColor: '#2563eb', // Biru
+                        borderColor: '#2563eb',
                         borderWidth: 2.5,
                         backgroundColor: gradientBlue,
                         fill: true,
                         tension: 0.4,
-                        pointRadius: 3,
+                        pointRadius: 3.5,
                         pointBackgroundColor: '#2563eb'
                     },
                     {
                         label: 'Pengeluaran',
                         data: expenseData.length ? expenseData : [0, 0],
-                        borderColor: '#f43f5e', // Merah
+                        borderColor: '#f43f5e',
                         borderWidth: 2.5,
                         backgroundColor: gradientRed,
                         fill: true,
                         tension: 0.4,
-                        pointRadius: 3,
+                        pointRadius: 3.5,
                         pointBackgroundColor: '#f43f5e'
                     }
                 ]
@@ -491,7 +529,7 @@
                 scales: {
                     x: {
                         grid: { display: false },
-                        ticks: { font: { size: 9 }, color: '#94a3b8' }
+                        ticks: { font: { size: 10 }, color: '#64748b' }
                     },
                     y: { display: false }
                 }
